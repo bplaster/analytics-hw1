@@ -8,53 +8,66 @@ from distance import *
 from StringIO import StringIO
 
 def main():
+    put_arr = []
+    dat_arr = []
     with open("example_data.csv") as f_in:
         raw_str = f_in.read()
-        pu_arr_t = np.genfromtxt(StringIO(raw_str),dtype=None,delimiter=",",autostrip=True, usecols=(5), skip_header=1)
-        dat_arr = np.genfromtxt(StringIO(raw_str),dtype=float,delimiter=",",autostrip=True, usecols=(8,9,10,11,12,13), skip_header=1)
-
-        outliers = []
-        distances = np.array([])  
-        strt_time = np.array([])      
+        put_arr = np.genfromtxt(StringIO(raw_str),dtype=str,delimiter=",",autostrip=True, usecols=(5), skip_header=1) # Pick up time array
+        dat_arr = np.genfromtxt(StringIO(raw_str),dtype=float,delimiter=",",autostrip=True, usecols=(8,9,10,11,12,13), skip_header=1) # Data array
         
-        for i, x in enumerate(dat_arr):
-            try:
-                distances = np.append(distances,[get_distance(x[3],x[2],x[5],x[4])],0)
-            except:
-                outliers.append(i)
-                
-        dat_arr = np.delete(dat_arr,(outliers),0)       
-        #dat_arr = np.append(dat_arr,distances,1)
-                
-        print len(dat_arr[:,0]), len(distances)
-        print distances
-        trip_time = dat_arr[:,0]
-        trip_dist = dat_arr[:,1]
-        #trip_mag = dat_arr[:,6]
+    trip_disp = []  
+    strt_time = []  
+    outliers = []
+            
+    # Create Start Time Array
+    for x in put_arr:
+        strt_time = np.append(strt_time,[get_time_as_float(x)],0)
+    
+    # Create Displacement Array & Find outliers
+    for i, x in enumerate(dat_arr):
+        try:
+            disp = get_distance(x[3],x[2],x[5],x[4])
+            # 1) Filter out when displacement is greater than distance
+            # 2) Filter out when coordinates are 0
+            if disp < x[1] and x[3] != 0: 
+                trip_disp = np.append(trip_disp,[disp],0)
+            else:
+                outliers.append(i)        
+        except:
+            outliers.append(i)
         
-        #print len(trip_mag),max(trip_mag),min(trip_mag) # distance is measured in miles
+    # Remove Outliers from Arrays
+    dat_arr = np.delete(dat_arr,(outliers),0)
+    strt_time = np.delete(strt_time,(outliers),0)
+    
+    # Arrays to plot
+    trip_time = dat_arr[:,0]
+    trip_dist = dat_arr[:,1]
+    
+    print len(trip_dist),max(trip_dist),min(trip_dist) # distance is measured in miles
+    
+    # Set up plots
+    plt.figure(1, figsize=(15,9))
+    plt.scatter(strt_time,trip_time)
+    plt.xlabel('Pick Up Time (hour of day)')
+    plt.ylabel('Trip Time (in seconds)')
+    
+    plt.figure(2, figsize=(15,9))
+    plt.scatter(trip_time,trip_dist)
+    plt.xlabel('Trip Time (in seconds)')
+    plt.ylabel('Trip Distance (in miles)')
         
-       # Set up plots
-        plt.figure(1, figsize=(15,8))
-        plt.suptitle('All the things',weight='bold')
-	
-        sp1 = plt.subplot(311)
-        #sp1.scatter(trip_time,pu_time)
-        plt.xlabel('Trip Time (in seconds)')
-        plt.ylabel('Pick Up Time')
+    plt.figure(3, figsize=(15,9))
+    plt.scatter(trip_time,trip_disp)
+    plt.xlabel('Trip Time (in seconds)')
+    plt.ylabel('Trip Displacement (in miles)')
         
-        sp2 = plt.subplot(312)
-        #sp2.scatter(trip_time,trip_dist)
-        plt.xlabel('Trip Time (in seconds)')
-        plt.ylabel('Trip Distance')
-        
-        sp3 = plt.subplot(313)
-        #sp3.scatter(distances[:,1],distances[:,0])
-        plt.xlabel('Trip Time (in seconds)')
-        plt.ylabel('Distance from Pick up to Drop Off')
-        
-        plt.show()
-        plt.savefig('homework1.png')
+    #plt.show()
+    
+    # Setup test and training data
+    test_dat = dat_arr[::4,:2]
+    train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
+    
         
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
@@ -65,6 +78,7 @@ def get_time_as_float (datetime):
     hours = hours + minutes
     #hours = round(hours)
     return hours
+    
         
 if __name__ == '__main__':
   main()
