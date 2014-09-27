@@ -111,12 +111,16 @@ def main():
     #pylab.plot(training_trip_time, fit.fittedvalues)
     #pylab.show()
     
-    # LS Error for Test
+    # Error for Test
     x_test = test_dat[:,1]
     y_test = test_dat[:,0]
     y_fit_test = m*x_test+b
-    LS_error = np.sum((y_fit_test-y_test)*(y_fit_test-y_test))
-    print "LS error (test data): ", LS_error
+    OLS_error = np.sum((y_fit_test-y_test)*(y_fit_test-y_test)) # LS Error
+    v = np.vstack([m,1])
+    r = np.vstack([x_test,y_fit_test-y_test])
+    TLS_error = np.sum(np.abs(np.dot(v.T,r[:,:]))*np.linalg.norm(v)) # TLS Error
+    print "OLS error (test data): ", OLS_error
+    print "TLS error (test data): ", TLS_error
     
     # Plot LS fit for test data       
     plt.figure(6, figsize=(15,9))    
@@ -127,6 +131,7 @@ def main():
     plt.xlabel('Trip Distance (in miles)')
     plt.legend()
     plt.show()
+    
         
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
