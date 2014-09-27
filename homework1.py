@@ -115,10 +115,10 @@ def main():
     x_test = test_dat[:,1]
     y_test = test_dat[:,0]
     y_fit_test = m*x_test+b
-    OLS_error = np.sum((y_fit_test-y_test)*(y_fit_test-y_test)) # LS Error
-    v = np.vstack([m,1])
-    r = np.vstack([x_test,y_fit_test-y_test])
-    TLS_error = np.sum(np.abs(np.dot(v.T,r[:,:]))*np.linalg.norm(v)) # TLS Error
+    OLS_error = np.sqrt(np.sum(np.square((y_fit_test-y_test)))/len(y_fit_test)) # OLS Error
+    v = np.vstack([m,-1])
+    r = np.vstack([x_test-x_test,y_fit_test-y_test])
+    TLS_error = np.sqrt(np.sum(np.square(np.abs(np.dot(v.T,r[:,:]))/np.linalg.norm(v)))/len(y_fit_test)) # TLS Error
     print "OLS error (test data): ", OLS_error
     print "TLS error (test data): ", TLS_error
     
