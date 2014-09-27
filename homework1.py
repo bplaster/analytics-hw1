@@ -1,4 +1,4 @@
-# Brandon Plaster
+# Brandon Plaster & Alap Parikh
 # CS 5785 Homework 1
 
 import pylab
@@ -46,32 +46,34 @@ def main():
     trip_time = dat_arr[:,0]
     trip_dist = dat_arr[:,1]
     
-    print len(trip_dist),max(trip_dist),min(trip_dist) # distance is measured in miles
+    print "Total data points: ", len(trip_dist)
+    print "Maxiumum distance: ", max(trip_dist)," miles"
+    print "Minimum distance: ", min(trip_dist), " miles" 
     
     # Set up plots
     plt.figure(1, figsize=(15,9))
     plt.scatter(strt_time,trip_time)
+    plt.title('Pick Up Time vs. Trip Time')
     plt.xlabel('Pick Up Time (hour of day)')
     plt.ylabel('Trip Time (in seconds)')
     
     plt.figure(2, figsize=(15,9))
     plt.scatter(trip_time,trip_dist)
+    plt.title('Trip Time vs. Trip Distance')
     plt.xlabel('Trip Time (in seconds)')
     plt.ylabel('Trip Distance (in miles)')
         
     plt.figure(3, figsize=(15,9))
     plt.scatter(trip_time,trip_disp)
+    plt.title('Trip Time vs. Trip Displacement')
     plt.xlabel('Trip Time (in seconds)')
     plt.ylabel('Trip Displacement (in miles)')
-        
-    #plt.show()
-    
+            
     # Setup test and training data
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
     #print train_dat
     
-<<<<<<< Updated upstream
     # Find weights for LS solution
     x = train_dat[:,1]
     y = train_dat[:,0]
@@ -80,38 +82,51 @@ def main():
     # m1, b1 = np.dot(np.dot(np.linalg.inv(np.dot(X.T,X)),X.T),y) # How to get it based on slides
     # m2, b2 = np.dot(np.linalg.pinv(X),y) # How to get it with built in psuedo inverse function
     
-    print m, b
+    print "Training data LS weights: ", m, b
     #print m1, b1
     #print m2, b2
     
-    # Plot LS fit        
+    # Plot LS fit for training data       
     plt.figure(4, figsize=(15,9))    
     plt.plot(x, y, 'o', label='Original data')
     plt.plot(x, m*x + b, 'r', label='Fitted line')
+    plt.title('Trip Time vs. Trip Distance (Training Data)')
+    plt.ylabel('Trip Time (in seconds)')
+    plt.xlabel('Trip Distance (in miles)')
+    plt.legend()
+            
+    #training_trip_time = train_dat[:,0]
+    #training_trip_distance = train_dat[:,1]
+    #print training_trip_time
+    #print training_trip_distance
+    
+    #TRAINING_TRIP_TIME = sm.add_constant(training_trip_time)
+    #model = sm.OLS(training_trip_distance, TRAINING_TRIP_TIME)
+    #fit = model.fit()
+    
+    #print fit.summary()
+    
+    #plt.figure(5)
+    #pylab.scatter(training_trip_time, training_trip_distance)
+    #pylab.plot(training_trip_time, fit.fittedvalues)
+    #pylab.show()
+    
+    # LS Error for Test
+    x_test = test_dat[:,1]
+    y_test = test_dat[:,0]
+    y_fit_test = m*x_test+b
+    LS_error = np.sum((y_fit_test-y_test)*(y_fit_test-y_test))
+    print "LS error (test data): ", LS_error
+    
+    # Plot LS fit for test data       
+    plt.figure(6, figsize=(15,9))    
+    plt.plot(x_test, y_test, 'o', label='Original data')
+    plt.plot(x_test, m*x_test + b, 'r', label='Fitted line')
+    plt.title('Trip Time vs. Trip Distance (Test Data)')
     plt.ylabel('Trip Time (in seconds)')
     plt.xlabel('Trip Distance (in miles)')
     plt.legend()
     plt.show()
-    
-    
-        
-=======
-    training_trip_time = train_dat[:,0]
-    training_trip_distance = train_dat[:,1]
-    #print training_trip_time
-    #print training_trip_distance
-    
-    TRAINING_TRIP_TIME = sm.add_constant(training_trip_time)
-    model = sm.OLS(training_trip_distance, TRAINING_TRIP_TIME)
-    fit = model.fit()
-    
-    print fit.summary()
-    
-    plt.figure(4)
-    pylab.scatter(training_trip_time, training_trip_distance)
-    pylab.plot(training_trip_time, fit.fittedvalues)
-    pylab.show()
->>>>>>> Stashed changes
         
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
