@@ -1,6 +1,8 @@
 # Brandon Plaster
 # CS 5785 Homework 1
 
+import pylab
+import statsmodels.api as sm
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -67,7 +69,9 @@ def main():
     # Setup test and training data
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
+    #print train_dat
     
+<<<<<<< Updated upstream
     # Find weights for LS solution
     x = train_dat[:,1]
     y = train_dat[:,0]
@@ -91,6 +95,23 @@ def main():
     
     
         
+=======
+    training_trip_time = train_dat[:,0]
+    training_trip_distance = train_dat[:,1]
+    #print training_trip_time
+    #print training_trip_distance
+    
+    TRAINING_TRIP_TIME = sm.add_constant(training_trip_time)
+    model = sm.OLS(training_trip_distance, TRAINING_TRIP_TIME)
+    fit = model.fit()
+    
+    print fit.summary()
+    
+    plt.figure(4)
+    pylab.scatter(training_trip_time, training_trip_distance)
+    pylab.plot(training_trip_time, fit.fittedvalues)
+    pylab.show()
+>>>>>>> Stashed changes
         
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
