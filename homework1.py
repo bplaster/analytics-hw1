@@ -68,6 +68,29 @@ def main():
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
     
+    # Find weights for LS solution
+    x = train_dat[:,1]
+    y = train_dat[:,0]
+    X = np.vstack([x,np.ones(x.size)]).T
+    m, b = np.linalg.lstsq(X,y)[0] # Least squares fit
+    # m1, b1 = np.dot(np.dot(np.linalg.inv(np.dot(X.T,X)),X.T),y) # How to get it based on slides
+    # m2, b2 = np.dot(np.linalg.pinv(X),y) # How to get it with built in psuedo inverse function
+    
+    print m, b
+    #print m1, b1
+    #print m2, b2
+    
+    # Plot LS fit        
+    plt.figure(4, figsize=(15,9))    
+    plt.plot(x, y, 'o', label='Original data')
+    plt.plot(x, m*x + b, 'r', label='Fitted line')
+    plt.ylabel('Trip Time (in seconds)')
+    plt.xlabel('Trip Distance (in miles)')
+    plt.legend()
+    plt.show()
+    
+    
+        
         
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
