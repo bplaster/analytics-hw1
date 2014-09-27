@@ -122,17 +122,6 @@ def main():
     print "OLS error (test data): ", OLS_error
     print "TLS error (test data): ", TLS_error
     
-    #Crosscheck TLS using cosine theta
-    OLS_offset = y_fit_test - y_test
-    OLS_error_alt = np.sum(np.square(OLS_offset))
-    cosine_theta = math.cos(math.atan(m))
-    TLS_offset = cosine_theta * OLS_offset
-    TLS_error_alt = np.sum(np.square(TLS_offset))
-    print "OLS error (alternative way):", OLS_error_alt
-    print "TLS error (alternative way):", TLS_error_alt
-    print OLS_error_alt*(cosine_theta**2)
-    print cosine_theta
-    
     # Plot LS fit for test data       
     plt.figure(6, figsize=(15,9))    
     plt.plot(x_test, y_test, 'o', label='Original data')
@@ -141,7 +130,7 @@ def main():
     plt.ylabel('Trip Time (in seconds)')
     plt.xlabel('Trip Distance (in miles)')
     plt.legend()
-    #plt.show()
+    plt.show()
     
         
 def get_time_as_float (datetime):
