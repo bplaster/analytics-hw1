@@ -94,5 +94,28 @@ df_test.loc[ (df_test.Fare.isnull()),'Fare'] = df_test['Fare'].dropna().median()
 #Drop insignificant columns
 df_test = df_test.drop(['Name', 'Sex', 'Ticket', 'Cabin', 'Embarked','Age','SibSp','Parch'], axis=1) 
 
+#Test data using model
 test_data = df_test.values
-print test_data[0]
+independent_variables = test_data[:,1:]
+predictions = []
+predictions = result.predict(independent_variables)
+
+#Use 0.5 as a threshold to determine survival or death
+predictions[predictions < 0.5] = 0
+predictions[predictions >= 0.5] = 1
+
+#Create results array with data type int as required by Kaggle
+result_arr = test_data[:,0]
+print len(result_arr)
+print len(predictions)
+result_arr = np.append(np.vstack(result_arr), np.vstack(predictions), 1)
+result_arr = result_arr.astype(int)
+#print result_arr.dtype
+#print result_arr
+
+#Write results to csv file
+import csv
+with open('titanic_results.csv', 'w') as fp:
+    a = csv.writer(fp, delimiter=',')
+    a.writerow(['PassengerId','Survived'])
+    a.writerows(result_arr)
