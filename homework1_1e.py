@@ -14,62 +14,57 @@ def main():
     dat_arr = []
     with open("example_data.csv") as f_in:
         raw_str = f_in.read()
-        put_arr = np.genfromtxt(StringIO(raw_str),dtype=str,delimiter=",",autostrip=True, usecols=(5), skip_header=1) # Pick up time array
+        #put_arr = np.genfromtxt(StringIO(raw_str),dtype=str,delimiter=",",autostrip=True, usecols=(5), skip_header=1) # Pick up time array
         dat_arr = np.genfromtxt(StringIO(raw_str),dtype=float,delimiter=",",autostrip=True, usecols=(8,9,10,11,12,13), skip_header=1) # Data array
         
     trip_disp = []  
     strt_time = []  
     outliers = []
-            
-    # Create Start Time Array
-    for x in put_arr:
-        strt_time = np.append(strt_time,[get_time_as_float(x)],0)
     
     # Create Displacement Array & Find outliers
     for i, x in enumerate(dat_arr):
         try:
-            disp = get_distance(x[3],x[2],x[5],x[4])
-            # 1) Filter out when displacement is greater than distance
-            # 2) Filter out when coordinates are 0
-            if disp < x[1] and x[3] != 0: 
-                trip_disp = np.append(trip_disp,[disp],0)
-            else:
-                outliers.append(i)        
+            disp = get_distance(x[3],x[2],x[5],x[4])  
+            trip_disp = np.append(trip_disp,[disp],0)     
         except:
             outliers.append(i)
-        
+            
     # Remove Outliers from Arrays
     dat_arr = np.delete(dat_arr,(outliers),0)
+    dat_arr = np.append(dat_arr, np.vstack(trip_disp), 1)
     strt_time = np.delete(strt_time,(outliers),0)
     
-    # Arrays to plot
-    trip_time = dat_arr[:,0]
-    trip_dist = dat_arr[:,1]
+    # Percentile, mean and median
+    #a = []
+    #a = np.percentile(trip_disp, (1,99))
+    #mean = np.mean(trip_disp)
+    #std_dev = np.std(trip_disp)
     
-    print "Total data points: ", len(trip_dist)
-    print "Maxiumum distance: ", max(trip_dist)," miles"
-    print "Minimum distance: ", min(trip_dist), " miles" 
+    data = []
+    data = dat_arr[:,6]
     
-    # Set up plots
-    plt.figure(1, figsize=(15,9))
-    plt.scatter(strt_time,trip_time)
-    plt.title('Pick Up Time vs. Trip Time')
-    plt.xlabel('Pick Up Time (hour of day)')
-    plt.ylabel('Trip Time (in seconds)')
+    #reject ouliers based on median
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d/mdev if mdev else 0.
+    #data = data[s<30]
+    #print len(data)
+    #print max(data)
     
-    plt.figure(2, figsize=(15,9))
-    plt.scatter(trip_time,trip_dist)
-    plt.title('Trip Time vs. Trip Distance')
-    plt.xlabel('Trip Time (in seconds)')
-    plt.ylabel('Trip Distance (in miles)')
-        
-    plt.figure(3, figsize=(15,9))
-    plt.scatter(trip_time,trip_disp)
-    plt.title('Trip Time vs. Trip Displacement')
-    plt.xlabel('Trip Time (in seconds)')
-    plt.ylabel('Trip Displacement (in miles)')
-            
-    # Setup test and training data
+    # We assume here that people will not have the same pickup and dropoff location
+    outliers = []
+    for i,x in enumerate(s):
+        if x > 6 or dat_arr[i,6] == 0:
+            outliers.append(i)
+    
+    #Delete outliers
+    dat_arr = np.delete(dat_arr,(outliers),0)
+    
+    #print "Total data points: ", len(trip_dist)
+    #print "Maxiumum distance: ", max(trip_dist)," miles"
+    #print "Minimum distance: ", min(trip_dist), " miles" 
+    
+        # Setup test and training data
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
     #print train_dat
@@ -122,6 +117,17 @@ def main():
     print "OLS error (test data): ", OLS_error
     print "TLS error (test data): ", TLS_error
     
+    #Crosscheck TLS using cosine theta
+    OLS_offset = y_fit_test - y_test
+    OLS_error_alt = np.sum(np.square(OLS_offset))
+    cosine_theta = math.cos(math.atan(m))
+    TLS_offset = cosine_theta * OLS_offset
+    TLS_error_alt = np.sum(np.square(TLS_offset))
+    print "OLS error (alternative way):", OLS_error_alt
+    print "TLS error (alternative way):", TLS_error_alt
+    #print OLS_error_alt*(cosine_theta**2)
+    #print cosine_theta
+    
     # Plot LS fit for test data       
     plt.figure(6, figsize=(15,9))    
     plt.plot(x_test, y_test, 'o', label='Original data')
@@ -130,18 +136,7 @@ def main():
     plt.ylabel('Trip Time (in seconds)')
     plt.xlabel('Trip Distance (in miles)')
     plt.legend()
-    plt.show()
-    
-        
-def get_time_as_float (datetime):
-    date, time = datetime.split(" ")
-    hours, minutes, seconds = time.split(":")
-    hours = float(hours)
-    minutes = float(minutes)
-    minutes = minutes/60
-    hours = hours + minutes
-    #hours = round(hours)
-    return hours
+    #plt.show()
     
         
 if __name__ == '__main__':

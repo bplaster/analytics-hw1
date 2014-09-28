@@ -130,8 +130,8 @@ def main():
     TLS_error_alt = np.sum(np.square(TLS_offset))
     print "OLS error (alternative way):", OLS_error_alt
     print "TLS error (alternative way):", TLS_error_alt
-    print OLS_error_alt*(cosine_theta**2)
-    print cosine_theta
+    #print OLS_error_alt*(cosine_theta**2)
+    #print cosine_theta
     
     # Plot LS fit for test data       
     plt.figure(6, figsize=(15,9))    
