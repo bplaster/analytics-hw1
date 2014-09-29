@@ -81,6 +81,15 @@ def main():
     #print m1, b1
     #print m2, b2
     
+    #Error for training data
+    y_fit_train = m*x + b
+    OLS_error_train = np.sqrt(np.sum(np.square((y_fit_train - y)))/len(y_fit_train)) # OLS Error
+    v_train = np.vstack([m,-1])
+    r_train = np.vstack([x - x,y_fit_train-y])
+    TLS_error_train = np.sqrt(np.sum(np.square(np.abs(np.dot(v_train.T,r_train[:,:]))/np.linalg.norm(v_train)))/len(y_fit_train)) # TLS Error
+    print "OLS error (train data): ", OLS_error_train
+    print "TLS error (train data): ", TLS_error_train
+    
     # Plot LS fit for training data       
     plt.figure(4, figsize=(15,9))    
     plt.plot(x, y, 'o', label='Original data')
@@ -119,10 +128,10 @@ def main():
     
     #Crosscheck TLS using cosine theta
     OLS_offset = y_fit_test - y_test
-    OLS_error_alt = np.sum(np.square(OLS_offset))
+    OLS_error_alt = np.sqrt(np.sum(np.square(OLS_offset))/len(y_fit_test))
     cosine_theta = math.cos(math.atan(m))
     TLS_offset = cosine_theta * OLS_offset
-    TLS_error_alt = np.sum(np.square(TLS_offset))
+    TLS_error_alt = np.sqrt(np.sum(np.square(TLS_offset))/len(y_fit_test))
     print "OLS error (alternative way):", OLS_error_alt
     print "TLS error (alternative way):", TLS_error_alt
     #print OLS_error_alt*(cosine_theta**2)
