@@ -1,10 +1,9 @@
 # Brandon Plaster & Alap Parikh
-# CS 5785 Homework 1
+# CS 5785 Homework 1a-1d
 
-import pylab
-import statsmodels.api as sm
+#import pylab
+#import statsmodels.api as sm
 import numpy as np
-import math
 import matplotlib.pyplot as plt
 from distance import *
 from StringIO import StringIO
@@ -12,6 +11,7 @@ from StringIO import StringIO
 def main():
     put_arr = []
     dat_arr = []
+    # Read in data
     with open("example_data.csv") as f_in:
         raw_str = f_in.read()
         put_arr = np.genfromtxt(StringIO(raw_str),dtype=str,delimiter=",",autostrip=True, usecols=(5), skip_header=1) # Pick up time array
@@ -21,7 +21,7 @@ def main():
     strt_time = []  
     outliers = []
     
-    # Arrays to plot
+    # Create arrays to plot
     trip_time = dat_arr[:,0]
     trip_dist = dat_arr[:,1]
     
@@ -82,7 +82,6 @@ def main():
     # Setup test and training data
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
-    #print train_dat
     
     # Find weights for LS solution
     x = train_dat[:,1]
@@ -105,6 +104,7 @@ def main():
     plt.xlabel('Trip Distance (in miles)')
     plt.legend()
             
+    ### Alternate method using Statsmodels.api
     #training_trip_time = train_dat[:,0]
     #training_trip_distance = train_dat[:,1]
     #print training_trip_time
@@ -142,7 +142,7 @@ def main():
     plt.legend()
     plt.show()
     
-        
+# Method converts string time to float time. Returns float in hours    
 def get_time_as_float (datetime):
     date, time = datetime.split(" ")
     hours, minutes, seconds = time.split(":")
@@ -150,7 +150,6 @@ def get_time_as_float (datetime):
     minutes = float(minutes)
     minutes = minutes/60
     hours = hours + minutes
-    #hours = round(hours)
     return hours
     
         

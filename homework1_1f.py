@@ -1,5 +1,5 @@
 # Brandon Plaster & Alap Parikh
-# CS 5785 Homework 1
+# CS 5785 Homework 1 1f
 
 import numpy as np
 from distance import *

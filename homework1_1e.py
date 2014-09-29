@@ -1,20 +1,17 @@
 # Brandon Plaster & Alap Parikh
-# CS 5785 Homework 1
+# CS 5785 Homework 1e
 
-import pylab
-import statsmodels.api as sm
+#import pylab
+#import statsmodels.api as sm
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 from distance import *
 from StringIO import StringIO
 
 def main():
-    put_arr = []
     dat_arr = []
     with open("example_data.csv") as f_in:
         raw_str = f_in.read()
-        #put_arr = np.genfromtxt(StringIO(raw_str),dtype=str,delimiter=",",autostrip=True, usecols=(5), skip_header=1) # Pick up time array
         dat_arr = np.genfromtxt(StringIO(raw_str),dtype=float,delimiter=",",autostrip=True, usecols=(8,9,10,11,12,13), skip_header=1) # Data array
         
     trip_disp = []  
@@ -47,9 +44,6 @@ def main():
     d = np.abs(data - np.median(data))
     mdev = np.median(d)
     s = d/mdev if mdev else 0.
-    #data = data[s<30]
-    #print len(data)
-    #print max(data)
     
     # We assume here that people will not have the same pickup and dropoff location
     outliers = []
@@ -60,11 +54,7 @@ def main():
     #Delete outliers
     dat_arr = np.delete(dat_arr,(outliers),0)
     
-    #print "Total data points: ", len(trip_dist)
-    #print "Maxiumum distance: ", max(trip_dist)," miles"
-    #print "Minimum distance: ", min(trip_dist), " miles" 
-    
-        # Setup test and training data
+    # Setup test and training data
     test_dat = dat_arr[::4,:2]
     train_dat = np.delete(dat_arr, np.arange(0,dat_arr.size,4),0)[:,:2]
     #print train_dat
@@ -74,13 +64,9 @@ def main():
     y = train_dat[:,0]
     X = np.vstack([x,np.ones(x.size)]).T
     m, b = np.linalg.lstsq(X,y)[0] # Least squares fit
-    # m1, b1 = np.dot(np.dot(np.linalg.inv(np.dot(X.T,X)),X.T),y) # How to get it based on slides
-    # m2, b2 = np.dot(np.linalg.pinv(X),y) # How to get it with built in psuedo inverse function
     
     print "Training data LS weights: ", m, b
-    #print m1, b1
-    #print m2, b2
-    
+  
     #Error for training data
     y_fit_train = m*x + b
     OLS_error_train = np.sqrt(np.sum(np.square((y_fit_train - y)))/len(y_fit_train)) # OLS Error
@@ -90,15 +76,6 @@ def main():
     print "OLS error (train data): ", OLS_error_train
     print "TLS error (train data): ", TLS_error_train
     
-    # Plot LS fit for training data       
-    plt.figure(4, figsize=(15,9))    
-    plt.plot(x, y, 'o', label='Original data')
-    plt.plot(x, m*x + b, 'r', label='Fitted line')
-    plt.title('Trip Time vs. Trip Distance (Training Data)')
-    plt.ylabel('Trip Time (in seconds)')
-    plt.xlabel('Trip Distance (in miles)')
-    plt.legend()
-            
     #training_trip_time = train_dat[:,0]
     #training_trip_distance = train_dat[:,1]
     #print training_trip_time
@@ -134,18 +111,6 @@ def main():
     TLS_error_alt = np.sqrt(np.sum(np.square(TLS_offset))/len(y_fit_test))
     print "OLS error (alternative way):", OLS_error_alt
     print "TLS error (alternative way):", TLS_error_alt
-    #print OLS_error_alt*(cosine_theta**2)
-    #print cosine_theta
-    
-    # Plot LS fit for test data       
-    plt.figure(6, figsize=(15,9))    
-    plt.plot(x_test, y_test, 'o', label='Original data')
-    plt.plot(x_test, m*x_test + b, 'r', label='Fitted line')
-    plt.title('Trip Time vs. Trip Distance (Test Data)')
-    plt.ylabel('Trip Time (in seconds)')
-    plt.xlabel('Trip Distance (in miles)')
-    plt.legend()
-    #plt.show()
     
         
 if __name__ == '__main__':
