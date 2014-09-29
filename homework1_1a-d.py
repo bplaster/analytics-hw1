@@ -20,6 +20,14 @@ def main():
     trip_disp = []  
     strt_time = []  
     outliers = []
+    
+    # Arrays to plot
+    trip_time = dat_arr[:,0]
+    trip_dist = dat_arr[:,1]
+    
+    print "Total data points (before filtering): ", len(trip_dist)
+    print "Maxiumum distance (before filtering): ", max(trip_dist)," miles"
+    print "Minimum distance (before filtering): ", min(trip_dist), " miles"            
             
     # Create Start Time Array
     for x in put_arr:
@@ -46,9 +54,11 @@ def main():
     trip_time = dat_arr[:,0]
     trip_dist = dat_arr[:,1]
     
-    print "Total data points: ", len(trip_dist)
-    print "Maxiumum distance: ", max(trip_dist)," miles"
-    print "Minimum distance: ", min(trip_dist), " miles" 
+    print "Total data points (after filtering): ", len(trip_dist)
+    print "Maxiumum distance (after filtering): ", max(trip_dist)," miles"
+    print "Minimum distance (after filtering): ", min(trip_dist), " miles" 
+    print "Maxiumum displacement (after filtering): ", max(trip_disp)," miles"
+    print "Minimum displacement (after filtering): ", min(trip_disp), " miles"
     
     # Set up plots
     plt.figure(1, figsize=(15,9))
