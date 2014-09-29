@@ -8,7 +8,9 @@ from time import strftime, localtime
 def main():
     print "Start time: ", strftime("%a, %d %b %Y %H:%M:%S",localtime()) 
     filename_train = "trip_data_1.csv"
+    #filename_train = "example_data.csv"
     filename_test = "trip_data_2.csv"
+    #filename_test = "example_data.csv"
     max_feat = -9999 * np.ones(7)
     min_feat = 9999 * np.ones(7)
     features = []
@@ -103,7 +105,8 @@ def main():
     print "OLS error (training data): ", OLS_error[0]
     print "TLS error (training data): ", TLS_error
 
-    # Test Set   
+    # Test Set  
+    test_x_sum = np.zeros(8)
     d_ols_sqrd_total_test = 0
     d_tls_sqrd_total_test = 0 
     count_test = 0
@@ -140,6 +143,7 @@ def main():
                     d_tls_sqrd = ((np.square(np.linalg.norm(pa))*pbn) - np.square(np.dot(pa,pb)))/pbn
                     d_tls_sqrd_total_test += d_tls_sqrd
                     
+                    test_x_sum += p
                     count_test += 1
             except:
                 pass
@@ -147,10 +151,43 @@ def main():
     OLS_error_test = np.sqrt(d_ols_sqrd_total/count_test) # OLS Error
     TLS_error_test = np.sqrt(d_tls_sqrd_total/count_test) # TLS Error
     
+    test_x_mean = np.vstack(test_x_sum/count_test)
+        
     print "OLS error (test data): ", OLS_error_test[0]
     print "TLS error (test data): ", TLS_error_test
-
-
+    
+    coef_sum = np.zeros([8,8])
+    diff_x_sum = np.zeros([8,1])
+    
+    # Correlation Coefficiant test data
+    with open(filename_test) as f_in:
+        next(f_in)
+        for line in f_in:   
+            try:
+                line = line.strip().split(',')
+                pu_time = get_time_as_float(line[5])
+                dist = float(line[9])
+                pu_long = float(line[10])
+                pu_lat = float(line[11])
+                do_long = float(line[12])
+                do_lat = float(line[13])
+                time_test = float(line[8])
+                disp = get_distance(pu_lat,pu_long,do_lat,do_long)
+                # 1) Filter out when displacement is greater than distance
+                # 2) Filter out when coordinates are 0
+                if disp < dist and pu_long != 0: 
+                    feat_vect = np.array((dist, disp, pu_lat, pu_long, do_lat, do_long, pu_time))
+                    feat_vect = feat_scale(feat_vect,min_feat,range_feat)
+                    p = np.vstack(np.append(feat_vect,np.array(time_test)))
+                    x_diff_test = p-test_x_mean
+                    coef_sum += x_diff_test*x_diff_test.T
+                    diff_x_sum += np.square(x_diff_test)
+            except:
+                pass
+    
+    # Correlation Coefficiant test data
+    coef = (coef_sum)/(np.sqrt(diff_x_sum)*np.sqrt(diff_x_sum).T)
+    print "Training Coefficient (test data): ", coef
 
     print "End time: ", strftime("%a, %d %b %Y %H:%M:%S",localtime())
     
