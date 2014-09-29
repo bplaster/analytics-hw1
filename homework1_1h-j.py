@@ -69,18 +69,41 @@ def main():
 
     # Find weights for LS solution
     features = np.array(features)
-    y = np.vstack(times)
-    x = np.append(features,np.vstack(np.ones(features.shape[0])),1)
-    weights = np.linalg.lstsq(x,y)[0] # Least squares fit
+    y_train = np.vstack(times)
+    x_train = np.append(features,np.vstack(np.ones(features.shape[0])),1)
+    weights = np.linalg.lstsq(x_train,y_train)[0] # Least squares fit
     print "OLS weights (training data): ", weights
     
     # Error for Training data
-    y_fit_train = np.vstack(np.sum(x*weights.T,1))
-    print y_fit_train.shape, y.shape
-    OLS_error = np.sqrt(np.sum(np.square((y_fit_train-y)))/y_fit_train.shape[0]) # OLS Error
-    print "OLS error (training data): ", OLS_error
-    #print "TLS error (training data): ", TLS_error
+    p1x = np.vstack(np.zeros(7))
+    p1y = np.sum(np.append(p1x,1)*weights.T)
+    p1 = np.append(p1x, p1y)
+    p2x = np.vstack(np.ones(7))
+    p2y = np.sum(np.append(p2x,1)*weights.T)
+    p2 = np.append(p2x, p2y)
     
+    d_ols_sqrd_total = 0
+    d_tls_sqrd_total = 0
+    
+    for i, x in enumerate(x_train):
+        #OLS
+        d_ols_sqrd = np.square(np.sum(x*weights.T,1)-y_train[i])
+        d_ols_sqrd_total += d_ols_sqrd
+        
+        #TLS
+        p = np.append(features[i],y_train[i],1)
+        pa = p1 - p
+        pb = p2 - p1
+        pbn = np.square(np.linalg.norm(pb))
+        d_tls_sqrd = ((np.square(np.linalg.norm(pa))*pbn) - np.square(np.dot(pa,pb)))/pbn
+        d_tls_sqrd_total += d_tls_sqrd
+    
+    OLS_error = np.sqrt(d_ols_sqrd_total/y_train.shape[0]) # OLS Error
+    TLS_error = np.sqrt(d_tls_sqrd_total/y_train.shape[0]) # TLS Error
+    
+    print "OLS error (training data): ", OLS_error[0]
+    print "TLS error (training data): ", TLS_error
+
     print "End time: ", strftime("%a, %d %b %Y %H:%M:%S",localtime())
     
 def feat_scale (x, x_min, x_range):
